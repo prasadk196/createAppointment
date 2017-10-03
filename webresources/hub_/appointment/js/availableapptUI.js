@@ -91,6 +91,10 @@ function Appointment(){
                     typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
                     staffId:appointmentObj['_hub_staff_value'],
                     staffValue:appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'],
+                    startDate:appointmentObj['hub_start_date'],
+                    startTime:appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue'],
+                    endDate:appointmentObj['hub_end_date'],
+                    endTime:appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue'],
                     startObj:startObj,
                     endObj:endObj,
                     locationId:appointmentObj['_hub_location_value'],
@@ -106,13 +110,19 @@ function Appointment(){
             tempList = [];
             wjQuery.each(args, function(index, appointmentHour) {
                 var startObj = new Date(appointmentHour['hub_effectivestartdate']+" "+appointmentHour['hub_starttime@OData.Community.Display.V1.FormattedValue']); 
-                var endObj = new Date(appointmentHour['hub_effectivestartdate']+" "+appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue']); 
+                var endObj = new Date(appointmentHour['hub_effectiveenddate']+" "+appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue']); 
                 tempList.push({
                     type:appointmentHour['aworkhours_x002e_hub_type'],
                     typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
                     startObj:startObj,
+                    startDate:appointmentHour['hub_effectivestartdate'],
+                    startTime:appointmentHour['hub_starttime@OData.Community.Display.V1.FormattedValue'],
+                    endDate:appointmentHour['hub_effectiveenddate'],
+                    endTime:appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue'],
                     endObj:endObj,
-                    capacity:appointmentHour['aworkhours_x002e_hub_capacity']
+                    capacity:appointmentHour['hub_capacity'],
+                    day:appointmentHour['hub_days'],
+                    dayVal:appointmentHour['hub_days@OData.Community.Display.V1.FormattedValue']
                 });
             });
             this.appointmentHours = tempList;
@@ -255,7 +265,7 @@ function Appointment(){
                     self.appointmentList = self.formatObjects(data.getAppointment(startDate,endDate, false), "appointmentList");
                 }
                 self.populateAppointmentHours(self.appointmentHours);
-                self.populateAppointment(self.appointmentList);
+                // self.populateAppointment(self.appointmentList);
             }
         }, 300);
     }
@@ -275,36 +285,41 @@ function Appointment(){
         appointmentHours = appointmentHours == null ? [] : appointmentHours;
         if(appointmentHours.length){
             wjQuery.each(appointmentHours, function (index, appointmentHrObj) {
-                var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
-                var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
-                var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
-                if(eventPopulated.length){
-                    eventPopulated[0].capacity += appointmentHrObj['capacity'];
-                    eventPopulated[0].title = "0/"+eventPopulated[0].capacity;
-                }else{
-                    var eventObj = {};
-                    eventObj = {
-                        id:eventId,
-                        start:appointmentHrObj['startObj'],
-                        end:appointmentHrObj['endObj'],
-                        allDay : false,
-                        type:appointmentHrObj['type'],
-                        typeValue:appointmentHrObj['typeValue'],
-                        borderColor:eventColorObj.borderColor,
-                        color:"#333",
-                        title:"0/"+appointmentHrObj['capacity'],
-                        backgroundColor:eventColorObj.backgroundColor,
-                        studentList:[],
-                        parentList:[],
-                        occupied:0,
-                        capacity:appointmentHrObj['capacity']
+                var response = self.checkDateRage(appointmentHrObj['startDate'],appointmentHrObj['endDate'], appointmentHrObj['day']);
+                if(response != false){
+                    appointmentHrObj['startObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+appointmentHrObj['startTime']);
+                    appointmentHrObj['endObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+appointmentHrObj['endTime']);
+                    var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
+                    var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
+                    var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
+                    if(eventPopulated.length){
+                        eventPopulated[0].capacity += appointmentHrObj['capacity'];
+                        eventPopulated[0].title = "0/"+eventPopulated[0].capacity;
+                    }else{
+                        var eventObj = {};
+                        eventObj = {
+                            id:eventId,
+                            start:appointmentHrObj['startObj'],
+                            end:appointmentHrObj['endObj'],
+                            allDay : false,
+                            type:appointmentHrObj['type'],
+                            typeValue:appointmentHrObj['typeValue'],
+                            borderColor:eventColorObj.borderColor,
+                            color:"#333",
+                            title:"0/"+appointmentHrObj['capacity'],
+                            backgroundColor:eventColorObj.backgroundColor,
+                            studentList:[],
+                            parentList:[],
+                            occupied:0,
+                            capacity:appointmentHrObj['capacity']
+                        }
+                        self.eventList.push(eventObj);
+                        self.appointment.fullCalendar('removeEvents');
+                        self.appointment.fullCalendar('removeEventSource');
+                        self.appointment.fullCalendar('addEventSource', { events: self.eventList });
                     }
-                    self.eventList.push(eventObj);
-                    self.appointment.fullCalendar('removeEvents');
-                    self.appointment.fullCalendar('removeEventSource');
-                    self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+                    self.appointment.fullCalendar('refetchEvents');
                 }
-                self.appointment.fullCalendar('refetchEvents');
             });
             wjQuery(".loading").hide();
         }
@@ -381,5 +396,42 @@ function Appointment(){
         });
     }
 
+    this.checkDateRage = function(start, end, day){
+        var self = this;
+        var currentView = self.appointment.fullCalendar('getView');
+        start = new Date(start);
+        var returnDate = false;
+        if(end == undefined){
+           end = new Date(moment(currentView.end).format("YYYY-MM-DD"));
+        }else{
+            end = new Date(end);
+        }
+        currentView.start = new Date(moment(currentView.start).format("YYYY-MM-DD"));
+        currentView.end = new Date(moment(currentView.end).format("YYYY-MM-DD"));
+        if(currentView.start.getTime() >= start.getTime() && currentView.end.getTime() <= end.getTime()){
+            var curr = currentView.start; 
+            var first = curr.getDate() - curr.getDay()
+            var firstday = (new Date(curr.setDate(first+1))).toString();
+            for(var i = 0;i<7;i++){
+                var next = first + i;
+                var nextday = new Date(curr.setDate(next));
+                if(nextday.getDay() === day){
+                    returnDate = nextday;
+                    console.log(nextday);
+                    break;
+                }
+            }
+            return returnDate;
+        }
+    }
+
+    this.getWeek = function(fromDate){
+        var sunday = new Date(fromDate.setDate(fromDate.getDate()-fromDate.getDay()));
+        var result = [new Date(sunday)];
+        while (sunday.setDate(sunday.getDate()+1) && sunday.getDay()!==0) {
+          result.push(new Date(sunday));
+        }
+        return result;
+    }
 }
 
