@@ -408,20 +408,21 @@ function Appointment(){
         }
         currentView.start = new Date(moment(currentView.start).format("YYYY-MM-DD"));
         currentView.end = new Date(moment(currentView.end).format("YYYY-MM-DD"));
-        if(currentView.start.getTime() >= start.getTime() && currentView.end.getTime() <= end.getTime()){
-            var curr = currentView.start; 
-            var first = curr.getDate() - curr.getDay()
-            var firstday = (new Date(curr.setDate(first+1))).toString();
-            for(var i = 0;i<7;i++){
-                var next = first + i;
-                var nextday = new Date(curr.setDate(next));
-                if(nextday.getDay() === day){
-                    returnDate = nextday;
-                    console.log(nextday);
-                    break;
-                }
+        var curr = currentView.start; 
+        var first = curr.getDate() - curr.getDay()
+        var firstday = (new Date(curr.setDate(first+1))).toString();
+        for(var i = 0;i<7;i++){
+            var next = first + i;
+            var nextday = new Date(curr.setDate(next));
+            if(nextday.getDay() === day){
+                returnDate = nextday;
+                break;
             }
+        }
+        if(start.getTime() <= returnDate.getTime() && returnDate.getTime() <= end.getTime()){
             return returnDate;
+        }else{
+            return false;
         }
     }
 
