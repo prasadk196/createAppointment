@@ -51,6 +51,7 @@ function Appointment(){
     this.appointmentList = [];
     this.eventList = [];
     this.appointmentHours = [];
+    this.businessClosure = [];
 
     this.clearEvents = function () {
         var self = this;
@@ -59,6 +60,7 @@ function Appointment(){
         self.eventList = [];
         self.appointmentList = [];
         self.appointmentHours = [];
+        self.businessClosure = [];
     }
 
     this.getCalendarEventDuraion = function (args){
@@ -118,6 +120,19 @@ function Appointment(){
                 });
             });
             this.appointmentHours = tempList;
+        }else if(label == "businessClosure"){
+            tempList = [];
+            wjQuery.each(args, function(index, businessObj) {
+                tempList.push({
+                    id:businessObj['hub_businessclosureid'],
+                    reason:businessObj['hub_reason'],
+                    startDate:businessObj['hub_startdatetime@OData.Community.Display.V1.FormattedValue'],
+                    endDate:businessObj['hub_enddatetime@OData.Community.Display.V1.FormattedValue'],
+                    duration:businessObj['hub_duration'],
+                    centerId:businessObj['_hub_center_value'],
+                    centerValue:businessObj['_hub_center_value@OData.Community.Display.V1.FormattedValue']
+                });
+            });
         }
         return tempList;
     }
@@ -156,7 +171,7 @@ function Appointment(){
                 if(new Date().getTime() < calEvent.start.getTime()){
                     self.confirmPopup(calEvent.start,calEvent.end,"Do you wish to create an Appointment?");
                 }else{
-                    self.prompt("Not allowed to create Appointment");
+                    self.prompt("Not allowed to create an Appointment");
                 }
             },
             editable: false,
@@ -252,6 +267,7 @@ function Appointment(){
                 var weekInfo = self.getCurrentWeekInfo(currentCalendarDate);
                 var startDate = moment(weekInfo.firstDay).format('YYYY-MM-DD');
                 var endDate = moment(weekInfo.lastDay).format('YYYY-MM-DD');
+                self.businessClosure = self.formatObjects(data.getBusinessClosure(startDate, endDate), "businessClosure");
                 if(fetchData){
                     self.appointmentHours = self.formatObjects(data.getAppointmentHours(startDate,endDate, false), "appointmentHours");
                     self.appointmentList = self.formatObjects(data.getAppointment(startDate,endDate, false), "appointmentList");
@@ -429,6 +445,7 @@ function Appointment(){
     }
 
     this.confirmPopup = function (slotStart, slotEnd, message) {
+        var self = this;
         slotStart = moment(slotStart).format('DD-MM-YYYY hh:mm A');
         slotEnd = moment(slotEnd).format('DD-MM-YYYY hh:mm A');
         var msg = "<p>Start: "+slotStart+"</p>"+
@@ -442,7 +459,10 @@ function Appointment(){
             modal: true,
             buttons: {
                 Yes: function () {
-                    data.getSlotDeatil(slotStart, slotEnd);
+                    newDate = moment(slotStart).format("YYYY-MM-DD");
+                    startTime = self.convertToMinutes(moment(slotStart).format("HH:mm A"));
+                    endTime = self.convertToMinutes(moment(slotEnd).format("HH:mm A"));
+                    data.getSlotDeatil({date:newDate, start:startTime, end:endTime});
                     console.log(slotStart, slotEnd);
                     wjQuery(this).dialog("close");
                 },

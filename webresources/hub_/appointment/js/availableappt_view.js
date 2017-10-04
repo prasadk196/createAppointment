@@ -369,7 +369,54 @@ var appointment = [
   // },
 ];
 
-
+var businessClosure = [
+  
+    {
+    "@odata.etag": "W/\"3726985\"",
+    "hub_reason": "Ad-hoc",
+    "hub_startdatetime@OData.Community.Display.V1.FormattedValue": "9/30/2017",
+    "hub_startdatetime": "2017-09-30T00:00:00Z",
+    "hub_enddatetime@OData.Community.Display.V1.FormattedValue": "10/1/2017",
+    "hub_enddatetime": "2017-10-01T00:00:00Z",
+    "hub_duration@OData.Community.Display.V1.FormattedValue": "1,440.00",
+    "hub_duration": 1440,
+    "_hub_center_value@OData.Community.Display.V1.FormattedValue": "Better Education, Inc.",
+    "_hub_center_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
+    "_hub_center_value": "46ecf508-e26d-e711-80f2-c4346bacfbbc",
+    "hub_businessclosureid": "ade1da6f-4c8d-e711-80f7-c4346badc680"
+  },
+  {
+    "@odata.etag": "W/\"3895710\"",
+    "hub_reason": "Holiday",
+    "hub_startdatetime@OData.Community.Display.V1.FormattedValue": "10/7/2017",
+    "hub_startdatetime": "2017-10-07T00:00:00Z",
+    "hub_enddatetime@OData.Community.Display.V1.FormattedValue": "10/7/2017",
+    "hub_enddatetime": "2017-10-07T00:00:00Z",
+    "hub_duration@OData.Community.Display.V1.FormattedValue": "0.00",
+    "hub_duration": 0,
+    "_hub_center_value@OData.Community.Display.V1.FormattedValue": "Better Education, Inc.",
+    "_hub_center_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
+    "_hub_center_value": "46ecf508-e26d-e711-80f2-c4346bacfbbc",
+    "hub_businessclosureid": "d446cc3c-33a8-e711-80f9-c4346bad526c"
+  },
+  {
+    "@odata.etag": "W/\"3895842\"",
+    "hub_reason": "Snow Day",
+    "hub_startdatetime@OData.Community.Display.V1.FormattedValue": "10/2/2017",
+    "hub_startdatetime": "2017-10-02T00:00:00Z",
+    "hub_enddatetime@OData.Community.Display.V1.FormattedValue": "10/2/2017",
+    "hub_enddatetime": "2017-10-02T00:00:00Z",
+    "hub_duration@OData.Community.Display.V1.FormattedValue": "0.00",
+    "hub_duration": 0,
+    "_hub_center_value@OData.Community.Display.V1.FormattedValue": "Better Education, Inc.",
+    "_hub_center_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
+    "_hub_center_value": "46ecf508-e26d-e711-80f2-c4346bacfbbc",
+    "hub_businessclosureid": "3680f3ab-bb79-e711-80f4-c4346bad526c"
+  }
+];
 
 
 
@@ -387,12 +434,12 @@ function Data(){
     return appointment;
   }
 
-  this.getbusinessClosures = function(startDate,endDate){
-    
+  this.getBusinessClosure = function(startDate,endDate){
+    return businessClosure;
   }
 
-  this.getSlotDeatil = function(slotStart, slotEnd){
-
+  this.getSlotDeatil = function(selectedSlot){
+    // Cal to backend function
   }
 
 
