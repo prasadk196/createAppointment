@@ -463,8 +463,9 @@ function Appointment(){
                     startTime = self.convertToMinutes(moment(slotStart).format("HH:mm A"));
                     endTime = self.convertToMinutes(moment(slotEnd).format("HH:mm A"));
                     data.getSlotDeatil({date:newDate, start:startTime, end:endTime});
-                    console.log(slotStart, slotEnd);
                     wjQuery(this).dialog("close");
+                    window.close();
+                    // console.log(slotStart, slotEnd);
                 },
                 No: function () {
                     wjQuery(this).dialog("close");
