@@ -1,95 +1,95 @@
 var MASTER_SCHEDULE_CONST = 35;
  
-  var appointmentType = [
-    {
-      type:0,
-      name:"Instructional",
-      borderColor:"red",
-      backgroundColor:"red",
-      display:"customer",
-      slotMinutes:30
-    },
-    {
-      type:1,
-      name:"Center Visit",
-      borderColor:"#7bc143",
-      backgroundColor:"#dff0d5",
-      display:"customer",
-      slotMinutes:30
-    },
-    {
-      type:2,
-      name:"Practice Test",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"student",
-      slotMinutes:30
-    },
-    {
-      type:3,
-      name:"School Visit",
-      borderColor:"red",
-      backgroundColor:"red",
-      display:"customer",
-      slotMinutes:30
-    },
-    {
-      type:4,
-      name:"Welcome Conference",
-      borderColor:"#7bc143",
-      backgroundColor:"#dff0d5",
-      display:"customer",
-      slotMinutes:60
-    },
-    {
-      type:5,
-      name:"Enrollment Conference",
-      borderColor:"#7bc143",
-      backgroundColor:"#dff0d5",
-      display:"customer",
-      slotMinutes:30
-    },
-    {
-      type:6,
-      name:"Initial Assessment",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"student",
-      slotMinutes:30
-    },
-    {
-      type:7,
-      name:"Progress Assessment",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"student",
-      slotMinutes:30
-    },
-    {
-      type:8,
-      name:"Ongoing Conference",
-      borderColor:"#eacc82",
-      backgroundColor:"#fcf7db",
-      display:"customer",
-      slotMinutes:30
-    },
-    {
-      type:9,
-      name:"Care Call",
-      borderColor:"red",
-      backgroundColor:"red",
-      display:"customer",
-      slotMinutes:30
-    },
-    {
-      type:10,
-      name:"Event",
-      borderColor:"red",
-      backgroundColor:"red",
-      display:"customer",
-      slotMinutes:30
-    }
-  ];
+var appointmentType = [
+  {
+    type:0,
+    name:"Instructional",
+    borderColor:"red",
+    backgroundColor:"red",
+    display:"customer",
+    slotMinutes:30
+  },
+  {
+    type:1,
+    name:"Center Visit",
+    borderColor:"#7bc143",
+    backgroundColor:"#dff0d5",
+    display:"customer",
+    slotMinutes:30
+  },
+  {
+    type:2,
+    name:"Practice Test",
+    borderColor:"#9acaea",
+    backgroundColor:"#ebf5fb",
+    display:"student",
+    slotMinutes:30
+  },
+  {
+    type:3,
+    name:"School Visit",
+    borderColor:"red",
+    backgroundColor:"red",
+    display:"customer",
+    slotMinutes:30
+  },
+  {
+    type:4,
+    name:"Welcome Conference",
+    borderColor:"#7bc143",
+    backgroundColor:"#dff0d5",
+    display:"customer",
+    slotMinutes:60
+  },
+  {
+    type:5,
+    name:"Enrollment Conference",
+    borderColor:"#7bc143",
+    backgroundColor:"#dff0d5",
+    display:"customer",
+    slotMinutes:30
+  },
+  {
+    type:6,
+    name:"Initial Assessment",
+    borderColor:"#9acaea",
+    backgroundColor:"#ebf5fb",
+    display:"student",
+    slotMinutes:30
+  },
+  {
+    type:7,
+    name:"Progress Assessment",
+    borderColor:"#9acaea",
+    backgroundColor:"#ebf5fb",
+    display:"student",
+    slotMinutes:30
+  },
+  {
+    type:8,
+    name:"Ongoing Conference",
+    borderColor:"#eacc82",
+    backgroundColor:"#fcf7db",
+    display:"customer",
+    slotMinutes:30
+  },
+  {
+    type:9,
+    name:"Care Call",
+    borderColor:"red",
+    backgroundColor:"red",
+    display:"customer",
+    slotMinutes:30
+  },
+  {
+    type:10,
+    name:"Event",
+    borderColor:"red",
+    backgroundColor:"red",
+    display:"customer",
+    slotMinutes:30
+  }
+];
 
 var appointmentHours = [
   
@@ -101,7 +101,7 @@ var appointmentHours = [
     "hub_starttime": 600,
     "hub_days@OData.Community.Display.V1.FormattedValue": "Monday",
     "hub_days": 1,
-    "hub_endtime@OData.Community.Display.V1.FormattedValue": "11:00 AM",
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "12:00 PM",
     "hub_endtime": 660,
     "hub_timingsid": "b250a172-669f-e711-80f9-c4346badc680",
     "hub_effectivestartdate@OData.Community.Display.V1.FormattedValue": "9/22/2017",
@@ -200,8 +200,8 @@ var appointment = [
     "statecode": 3,
     "hub_endtime@OData.Community.Display.V1.FormattedValue": "9:00 AM",
     "hub_endtime": 540,
-    "hub_end_date@OData.Community.Display.V1.FormattedValue": "10/02/2017",
-    "hub_end_date": "2017-10-02",
+    "hub_end_date@OData.Community.Display.V1.FormattedValue": "10/03/2017",
+    "hub_end_date": "2017-10-03",
     "_regardingobjectid_value@OData.Community.Display.V1.FormattedValue": "Diana Ken",
     "_regardingobjectid_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "regardingobjectid_account_appointment",
     "_regardingobjectid_value@Microsoft.Dynamics.CRM.lookuplogicalname": "account",
@@ -210,8 +210,8 @@ var appointment = [
     "_hub_student_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_student_Appointment",
     "_hub_student_value@Microsoft.Dynamics.CRM.lookuplogicalname": "contact",
     "_hub_student_value": "a0b3ae12-e68e-e711-80f7-c4346bacfbbc",
-    "hub_start_date@OData.Community.Display.V1.FormattedValue": "10/02/2017",
-    "hub_start_date": "2017-10-02",
+    "hub_start_date@OData.Community.Display.V1.FormattedValue": "10/03/2017",
+    "hub_start_date": "2017-10-03",
     "hub_fulldayappointment@OData.Community.Display.V1.FormattedValue": "No",
     "hub_fulldayappointment": false,
     "hub_type@OData.Community.Display.V1.FormattedValue": "Welcome Conference",

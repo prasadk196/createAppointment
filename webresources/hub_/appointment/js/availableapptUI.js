@@ -113,7 +113,8 @@ function Appointment(){
                     endObj:endObj,
                     capacity:appointmentHour['hub_capacity'],
                     day:appointmentHour['hub_days'],
-                    dayVal:appointmentHour['hub_days@OData.Community.Display.V1.FormattedValue']
+                    dayVal:appointmentHour['hub_days@OData.Community.Display.V1.FormattedValue'],
+                    duration:appointmentHour['aworkhours_x002e_hub_duration']
                 });
             });
             this.appointmentHours = tempList;
@@ -153,7 +154,7 @@ function Appointment(){
             eventClick: function(calEvent, jsEvent, view) {
                 // console.log(calEvent, jsEvent, view);
                 if(new Date().getTime() < calEvent.start.getTime()){
-                    self.confirmPopup(calEvent.start,calEvent.end,"Do you wish to create Appointment?");
+                    self.confirmPopup(calEvent.start,calEvent.end,"Do you wish to create an Appointment?");
                 }else{
                     self.prompt("Not allowed to create Appointment");
                 }
@@ -278,38 +279,43 @@ function Appointment(){
             wjQuery.each(appointmentHours, function (index, appointmentHrObj) {
                 var response = self.checkDateRage(appointmentHrObj['startDate'],appointmentHrObj['endDate'], appointmentHrObj['day']);
                 if(response != false){
-                    appointmentHrObj['startObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+appointmentHrObj['startTime']);
-                    appointmentHrObj['endObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+appointmentHrObj['endTime']);
-                    var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
-                    var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
-                    var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
-                    if(eventPopulated.length){
-                        eventPopulated[0].capacity += appointmentHrObj['capacity'];
-                        eventPopulated[0].title = "0/"+eventPopulated[0].capacity;
-                    }else{
-                        var eventObj = {};
-                        eventObj = {
-                            id:eventId,
-                            start:appointmentHrObj['startObj'],
-                            end:appointmentHrObj['endObj'],
-                            allDay : false,
-                            type:appointmentHrObj['type'],
-                            typeValue:appointmentHrObj['typeValue'],
-                            borderColor:eventColorObj.borderColor,
-                            color:"#333",
-                            title:"0/"+appointmentHrObj['capacity'],
-                            backgroundColor:eventColorObj.backgroundColor,
-                            studentList:[],
-                            parentList:[],
-                            occupied:0,
-                            capacity:appointmentHrObj['capacity']
+                    var timingArry = self.splitTimeBySlotMin(appointmentHrObj['startTime'], appointmentHrObj['endTime'],appointmentHrObj['duration']);
+                    if(timingArry.length){
+                        for(var d=0; d<timingArry.length; d++ ){
+                            appointmentHrObj['startObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['start']);
+                            appointmentHrObj['endObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['end']);
+                            var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
+                            var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
+                            var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
+                            if(eventPopulated.length){
+                                eventPopulated[0].capacity += appointmentHrObj['capacity'];
+                                eventPopulated[0].title = "0/"+eventPopulated[0].capacity;
+                            }else{
+                                var eventObj = {};
+                                eventObj = {
+                                    id:eventId,
+                                    start:appointmentHrObj['startObj'],
+                                    end:appointmentHrObj['endObj'],
+                                    allDay : false,
+                                    type:appointmentHrObj['type'],
+                                    typeValue:appointmentHrObj['typeValue'],
+                                    borderColor:eventColorObj.borderColor,
+                                    color:"#333",
+                                    title:"0/"+appointmentHrObj['capacity'],
+                                    backgroundColor:eventColorObj.backgroundColor,
+                                    studentList:[],
+                                    parentList:[],
+                                    occupied:0,
+                                    capacity:appointmentHrObj['capacity']
+                                }
+                                self.eventList.push(eventObj);
+                                self.appointment.fullCalendar('removeEvents');
+                                self.appointment.fullCalendar('removeEventSource');
+                                self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+                            }
+                            self.appointment.fullCalendar('refetchEvents');
                         }
-                        self.eventList.push(eventObj);
-                        self.appointment.fullCalendar('removeEvents');
-                        self.appointment.fullCalendar('removeEventSource');
-                        self.appointment.fullCalendar('addEventSource', { events: self.eventList });
                     }
-                    self.appointment.fullCalendar('refetchEvents');
                 }
             });
             wjQuery(".loading").hide();
@@ -357,6 +363,60 @@ function Appointment(){
         }else{
             wjQuery(".loading").hide();
         }
+    }
+
+    this.splitTimeBySlotMin = function(startTime, endTime, duration){
+        var self = this;
+        timingArry = [];
+        startTime = self.convertToMinutes(startTime);
+        endTime = self.convertToMinutes(endTime);
+        for(var j= startTime; j < endTime; j = j+duration ){
+            var start =  self.tConvert(self.convertMinsNumToTime(j));
+            var end = self.tConvert(self.convertMinsNumToTime(j+duration));
+            timingArry.push({start:start, end:end});
+        }
+        return timingArry;
+    }
+
+    this.convertToMinutes = function (timeString) {
+        if (timeString != undefined) {
+            if (timeString.split(' ')[1] == 'AM') {
+                var hours = parseInt(moment(timeString, 'h:mm A').format('h'));
+                var minutes = parseInt(moment(timeString, 'h:mm A').format('mm'));
+                return (hours * 60) + minutes;
+            }
+            else {
+                var hours = parseInt(moment(timeString, 'h:mm A').format('h'));
+                hours = hours != 12 ? hours + 12 : hours;
+                var minutes = parseInt(moment(timeString, 'h:mm A').format('mm'));
+                return (hours * 60) + minutes;
+            }
+        }
+    }
+
+    this.convertMinsNumToTime = function(minsNum){
+      if(minsNum){
+        // var mins_num = parseFloat(this, 10); // don't forget the second param
+        var hours   = Math.floor(minsNum / 60);
+        var minutes = Math.floor((minsNum - ((hours * 3600)) / 60));
+        var seconds = Math.floor((minsNum * 60) - (hours * 3600) - (minutes * 60));
+
+        // Appends 0 when unit is less than 10
+        if (hours   < 10) {hours   = "0"+hours;}
+        if (minutes < 10) {minutes = "0"+minutes;}
+        if (seconds < 10) {seconds = "0"+seconds;}
+        return hours+':'+minutes;
+      }
+    }
+
+    this.tConvert = function(time) {
+      time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+      if (time.length > 1) { 
+        time = time.slice (1);  
+        time[5] = +time[0] < 12 ? ' AM' : ' PM'; 
+        time[0] = +time[0] % 12 || 12; 
+      }
+      return time.join (''); 
     }
 
     this.getCurrentWeekInfo = function(newDate){
