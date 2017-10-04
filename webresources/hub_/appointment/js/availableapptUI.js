@@ -155,7 +155,7 @@ function Appointment(){
                 if(new Date().getTime() < calEvent.start.getTime()){
                     self.confirmPopup(calEvent.start,calEvent.end,"Do you wish to create Appointment?");
                 }else{
-                    console.log("Error");
+                    self.prompt("Not allowed to create Appointment");
                 }
             },
             editable: false,
@@ -387,6 +387,21 @@ function Appointment(){
                     wjQuery(this).dialog("close");
                 },
                 No: function () {
+                    wjQuery(this).dialog("close");
+                }
+            }
+        });
+    }
+
+    this.prompt = function(msg){
+        wjQuery("#dialog > .dialog-msg").html(msg);
+        wjQuery("#dialog").dialog({
+            resizable: false,
+            height: "auto",
+            width: 350,
+            modal: true,
+            buttons: {
+                Cancel: function () {
                     wjQuery(this).dialog("close");
                 }
             }
