@@ -89,21 +89,12 @@ function Appointment(){
                 tempList.push({
                     type:appointmentObj['hub_type'],
                     typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
-                    staffId:appointmentObj['_hub_staff_value'],
-                    staffValue:appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'],
                     startDate:appointmentObj['hub_start_date'],
                     startTime:appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue'],
                     endDate:appointmentObj['hub_end_date'],
                     endTime:appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue'],
                     startObj:startObj,
                     endObj:endObj,
-                    locationId:appointmentObj['_hub_location_value'],
-                    status:appointmentObj['hub_appointmentstatus'],
-                    studentId:appointmentObj['_hub_student_value'],
-                    studentName:appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
-                    parentId:appointmentObj['_regardingobjectid_value'],
-                    parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
-                    capacity:appointmentObj['aworkhours_x002e_hub_capacity']
                 });
             });
         }else if(label == "appointmentHours"){
@@ -265,7 +256,7 @@ function Appointment(){
                     self.appointmentList = self.formatObjects(data.getAppointment(startDate,endDate, false), "appointmentList");
                 }
                 self.populateAppointmentHours(self.appointmentHours);
-                // self.populateAppointment(self.appointmentList);
+                self.populateAppointment(self.appointmentList);
             }
         }, 300);
     }
@@ -322,44 +313,50 @@ function Appointment(){
                 }
             });
             wjQuery(".loading").hide();
+        }else{
+            wjQuery(".loading").hide();
         }
     }
 
     this.populateAppointment = function(appointmentList){
         var self = this;
         appointmentList = appointmentList == null ? [] : appointmentList;
-        wjQuery.each(appointmentList, function(index, appointmentObj){
-            var eventColorObj = self.getEventColor(appointmentObj["type"]);
-            var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj'];
-            var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
-            if(eventPopulated.length){
-                eventPopulated[0].occupied += 1; 
-                eventPopulated[0].title = eventPopulated[0].occupied+"/"+ eventPopulated[0].capacity;
-            }else{
-                var eventObj = {};
-                eventObj = {
-                    id:eventId,
-                    start:appointmentObj['startObj'],
-                    end:appointmentObj['endObj'],
-                    allDay : false,
-                    type:appointmentObj['type'],
-                    typeValue:appointmentObj['typeValue'],
-                    borderColor:eventColorObj.borderColor,
-                    color:"#333",
-                    title:"0/"+appointmentObj['capacity'],
-                    backgroundColor:eventColorObj.backgroundColor,
-                    studentList:[],
-                    parentList:[],
-                    occupied:0,
-                    capacity:appointmentObj['capacity']
+        if(appointmentList.length){
+            wjQuery.each(appointmentList, function(index, appointmentObj){
+                var eventColorObj = self.getEventColor(appointmentObj["type"]);
+                var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj'];
+                var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
+                if(eventPopulated.length){
+                    eventPopulated[0].occupied += 1; 
+                    eventPopulated[0].title = eventPopulated[0].occupied+"/"+ eventPopulated[0].capacity;
+                }else{
+                    var eventObj = {};
+                    eventObj = {
+                        id:eventId,
+                        start:appointmentObj['startObj'],
+                        end:appointmentObj['endObj'],
+                        allDay : false,
+                        type:appointmentObj['type'],
+                        typeValue:appointmentObj['typeValue'],
+                        borderColor:eventColorObj.borderColor,
+                        color:"#333",
+                        title:"0/"+appointmentObj['capacity'],
+                        backgroundColor:eventColorObj.backgroundColor,
+                        studentList:[],
+                        parentList:[],
+                        occupied:0,
+                        capacity:appointmentObj['capacity']
+                    }
+                    self.eventList.push(eventObj);
+                    self.appointment.fullCalendar('removeEvents');
+                    self.appointment.fullCalendar('removeEventSource');
+                    self.appointment.fullCalendar('addEventSource', { events: self.eventList });
                 }
-                self.eventList.push(eventObj);
-                self.appointment.fullCalendar('removeEvents');
-                self.appointment.fullCalendar('removeEventSource');
-                self.appointment.fullCalendar('addEventSource', { events: self.eventList });
-            }
-            self.appointment.fullCalendar('refetchEvents');
-        });
+                self.appointment.fullCalendar('refetchEvents');
+            });
+        }else{
+            wjQuery(".loading").hide();
+        }
     }
 
     this.getCurrentWeekInfo = function(newDate){
