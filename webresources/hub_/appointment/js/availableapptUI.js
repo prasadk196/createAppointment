@@ -152,7 +152,7 @@ function Appointment(){
             minTime: 8,
             maxTime: 20,
             allDayText: '',
-            allDaySlot:false,
+            allDaySlot:true,
             droppable: false,
             handleWindowResize: true,
             height: window.innerHeight - 120,
@@ -172,6 +172,18 @@ function Appointment(){
                     self.confirmPopup(calEvent.start,calEvent.end,"Do you wish to create an Appointment?");
                 }else{
                     self.prompt("Not allowed to create an Appointment");
+                }
+            },
+            eventRender: function(event, element, view) {
+                if (view.name == 'agendaWeek' && event.allDay) {
+                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
+                    wjQuery('.fc-event-skin').css('background-color', '#ddd');
+                    wjQuery('.fc-event-skin').css('border-color', '#ddd');
+                    wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
+                }
+                else{
+                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#fff');
+                    wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'); 
                 }
             },
             editable: false,
@@ -272,6 +284,7 @@ function Appointment(){
                     self.appointmentHours = self.formatObjects(data.getAppointmentHours(startDate,endDate, false), "appointmentHours");
                     self.appointmentList = self.formatObjects(data.getAppointment(startDate,endDate, false), "appointmentList");
                 }
+                self.populateBusinessClosure();
                 self.populateAppointmentHours(self.appointmentHours);
                 self.populateAppointment(self.appointmentList);
             }
@@ -295,41 +308,43 @@ function Appointment(){
             wjQuery.each(appointmentHours, function (index, appointmentHrObj) {
                 var response = self.checkDateRage(appointmentHrObj['startDate'],appointmentHrObj['endDate'], appointmentHrObj['day']);
                 if(response != false){
-                    var timingArry = self.splitTimeBySlotMin(appointmentHrObj['startTime'], appointmentHrObj['endTime'],appointmentHrObj['duration']);
-                    if(timingArry.length){
-                        for(var d=0; d<timingArry.length; d++ ){
-                            appointmentHrObj['startObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['start']);
-                            appointmentHrObj['endObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['end']);
-                            var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
-                            var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
-                            var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
-                            if(eventPopulated.length){
-                                eventPopulated[0].capacity += appointmentHrObj['capacity'];
-                                eventPopulated[0].title = "0/"+eventPopulated[0].capacity;
-                            }else{
-                                var eventObj = {};
-                                eventObj = {
-                                    id:eventId,
-                                    start:appointmentHrObj['startObj'],
-                                    end:appointmentHrObj['endObj'],
-                                    allDay : false,
-                                    type:appointmentHrObj['type'],
-                                    typeValue:appointmentHrObj['typeValue'],
-                                    borderColor:eventColorObj.borderColor,
-                                    color:"#333",
-                                    title:"0/"+appointmentHrObj['capacity'],
-                                    backgroundColor:eventColorObj.backgroundColor,
-                                    studentList:[],
-                                    parentList:[],
-                                    occupied:0,
-                                    capacity:appointmentHrObj['capacity']
+                    if(!self.checkBusinessClosure(response)){
+                        var timingArry = self.splitTimeBySlotMin(appointmentHrObj['startTime'], appointmentHrObj['endTime'],appointmentHrObj['duration']);
+                        if(timingArry.length){
+                            for(var d=0; d<timingArry.length; d++ ){
+                                appointmentHrObj['startObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['start']);
+                                appointmentHrObj['endObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['end']);
+                                var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
+                                var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
+                                var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
+                                if(eventPopulated.length){
+                                    eventPopulated[0].capacity += appointmentHrObj['capacity'];
+                                    eventPopulated[0].title = "0/"+eventPopulated[0].capacity;
+                                }else{
+                                    var eventObj = {};
+                                    eventObj = {
+                                        id:eventId,
+                                        start:appointmentHrObj['startObj'],
+                                        end:appointmentHrObj['endObj'],
+                                        allDay : false,
+                                        type:appointmentHrObj['type'],
+                                        typeValue:appointmentHrObj['typeValue'],
+                                        borderColor:eventColorObj.borderColor,
+                                        color:"#333",
+                                        title:"0/"+appointmentHrObj['capacity'],
+                                        backgroundColor:eventColorObj.backgroundColor,
+                                        studentList:[],
+                                        parentList:[],
+                                        occupied:0,
+                                        capacity:appointmentHrObj['capacity']
+                                    }
+                                    self.eventList.push(eventObj);
+                                    self.appointment.fullCalendar('removeEvents');
+                                    self.appointment.fullCalendar('removeEventSource');
+                                    self.appointment.fullCalendar('addEventSource', { events: self.eventList });
                                 }
-                                self.eventList.push(eventObj);
-                                self.appointment.fullCalendar('removeEvents');
-                                self.appointment.fullCalendar('removeEventSource');
-                                self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+                                self.appointment.fullCalendar('refetchEvents');
                             }
-                            self.appointment.fullCalendar('refetchEvents');
                         }
                     }
                 }
@@ -379,6 +394,40 @@ function Appointment(){
         }else{
             wjQuery(".loading").hide();
         }
+    }
+
+    this.populateBusinessClosure = function(startDate){
+        var self = this;
+        var currentView = self.appointment.fullCalendar('getView');
+        for(var j = currentView.start.getTime();j<currentView.end.getTime();j=j+(24*60*60*1000)){
+            for (var b = 0; b < self.businessClosure.length; b++) {
+                if(moment(self.businessClosure[b]['startDate']).format('YYYY-MM-DD') == moment(j).format('YYYY-MM-DD')){
+                    var eventObj = {
+                        start: new Date(j),
+                        allDay: true,
+                        className: "leave-day-class",
+                        title:'',
+                    };
+                    self.eventList.push(eventObj);
+                    self.appointment.fullCalendar('removeEvents');
+                    self.appointment.fullCalendar('removeEventSource');
+                    self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+                }
+            }
+        }
+        wjQuery(".loading").hide();
+    }
+
+    this.checkBusinessClosure = function(startDate){
+        var self = this;
+        var populateEvent = false;
+        for(var i=0; i<self.businessClosure.length;i++){
+            if(moment(self.businessClosure[i]['startDate']).format("YYYY-MM-DD") == moment(startDate).format("YYYY-MM-DD")){
+                populateEvent = true;
+                break;
+            }
+        };
+        return populateEvent;
     }
 
     this.splitTimeBySlotMin = function(startTime, endTime, duration){
@@ -462,10 +511,9 @@ function Appointment(){
                     newDate = moment(slotStart).format("YYYY-MM-DD");
                     startTime = self.convertToMinutes(moment(slotStart).format("HH:mm A"));
                     endTime = self.convertToMinutes(moment(slotEnd).format("HH:mm A"));
-                    data.getSlotDeatil({date:newDate, start:startTime, end:endTime});
                     wjQuery(this).dialog("close");
+                    window.selectedSlot = {date:newDate, start:startTime, end:endTime};
                     window.close();
-                    // console.log(slotStart, slotEnd);
                 },
                 No: function () {
                     wjQuery(this).dialog("close");
