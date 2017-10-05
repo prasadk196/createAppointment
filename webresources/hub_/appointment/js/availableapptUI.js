@@ -79,6 +79,20 @@ function Appointment(){
         return eventDuration;
     }
 
+    this.converDateToObject = function(appointmentObj){
+        var stDateArry = appointmentHour['hub_effectivestartdate'].split("-");
+        var stTimeArry = self.convertMinsNumToTime(self.convertToMinutes(appointmentHour['hub_starttime@OData.Community.Display.V1.FormattedValue'])).split(":");
+        var endDateArry = [];
+        if(appointmentHour['hub_effectiveenddate'] != undefined){
+            endDateArry = appointmentHour['hub_effectiveenddate'].split("-");
+        }
+        var endTimeArry = self.convertMinsNumToTime(self.convertToMinutes(appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue'])).split(":");
+        var startObj = new Date(stDateArry[0],stDateArry[1],stDateArry[2],stTimeArry[0],stTimeArry[1]); 
+        var endObj = new Date(endDateArry[0],endDateArry[1],endDateArry[2],endTimeArry[0],endTimeArry[1]); 
+        return {startObj:startObj, endObj:endObj};        
+    }
+
+
     this.formatObjects = function(args, label){
         args = args == null ? [] : args; 
         var self = this;
@@ -86,8 +100,12 @@ function Appointment(){
         if(label == "appointmentList"){
             tempList = [];
             wjQuery.each(args, function(index, appointmentObj) {
-                var startObj = new Date(appointmentObj['hub_start_date']+" "+appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue']);
-                var endObj = new Date(appointmentObj['hub_end_date']+" "+appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue']);
+                var stDateArry = appointmentObj['hub_start_date'].split("-");
+                var stTimeArry = self.convertMinsNumToTime(self.convertToMinutes(appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue'])).split(":");
+                var endDateArry = appointmentObj['hub_end_date'].split("-");
+                var endTimeArry = self.convertMinsNumToTime(self.convertToMinutes(appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue'])).split(":");
+                var startObj = new Date(stDateArry[0],stDateArry[1]-1,stDateArry[2],stTimeArry[0],stTimeArry[1]); 
+                var endObj = new Date(endDateArry[0],endDateArry[1]-1,endDateArry[2],endTimeArry[0],endTimeArry[1]);
                 tempList.push({
                     type:appointmentObj['hub_type'],
                     typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
@@ -102,8 +120,17 @@ function Appointment(){
         }else if(label == "appointmentHours"){
             tempList = [];
             wjQuery.each(args, function(index, appointmentHour) {
-                var startObj = new Date(appointmentHour['hub_effectivestartdate']+" "+appointmentHour['hub_starttime@OData.Community.Display.V1.FormattedValue']); 
-                var endObj = new Date(appointmentHour['hub_effectiveenddate']+" "+appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue']); 
+                var stDateArry = appointmentHour['hub_effectivestartdate'].split("-");
+                var stTimeArry = self.convertMinsNumToTime(self.convertToMinutes(appointmentHour['hub_starttime@OData.Community.Display.V1.FormattedValue'])).split(":");
+                var endDateArry = [];
+                if(appointmentHour['hub_effectiveenddate'] != undefined){
+                    endDateArry = appointmentHour['hub_effectiveenddate'].split("-");
+                }
+                var endTimeArry = self.convertMinsNumToTime(self.convertToMinutes(appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue'])).split(":");
+                
+                var startObj = new Date(stDateArry[0],stDateArry[1]-1,stDateArry[2],stTimeArry[0],stTimeArry[1]); 
+                var endObj = new Date(endDateArry[0],endDateArry[1]-1,endDateArry[2],endTimeArry[0],endTimeArry[1]); 
+                
                 tempList.push({
                     type:appointmentHour['aworkhours_x002e_hub_type'],
                     typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
@@ -155,7 +182,7 @@ function Appointment(){
             allDaySlot:true,
             droppable: false,
             handleWindowResize: true,
-            height: window.innerHeight - 120,
+            height: window.innerHeight - 65,
             slotMinutes: eventDuration,
             selectable: false,
             slotEventOverlap: true,
@@ -169,7 +196,7 @@ function Appointment(){
             eventClick: function(calEvent, jsEvent, view) {
                 // console.log(calEvent, jsEvent, view);
                 if(new Date().getTime() < calEvent.start.getTime()){
-                    self.confirmPopup(calEvent.start,calEvent.end,"Do you wish to create an Appointment?");
+                    self.confirmPopup(calEvent,"Do you wish to create an Appointment?");
                 }else{
                     // self.prompt("Not allowed to create an Appointment");
                 }
@@ -312,8 +339,12 @@ function Appointment(){
                         var timingArry = self.splitTimeBySlotMin(appointmentHrObj['startTime'], appointmentHrObj['endTime'],appointmentHrObj['duration']);
                         if(timingArry.length){
                             for(var d=0; d<timingArry.length; d++ ){
-                                appointmentHrObj['startObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['start']);
-                                appointmentHrObj['endObj'] = new Date(moment(response).format("YYYY-MM-DD")+" "+timingArry[d]['end']);
+                                var stDateArry = moment(response).format("YYYY-MM-DD").split("-");
+                                var stTimeArry = self.convertMinsNumToTime(self.convertToMinutes(timingArry[d]['start'])).split(":");
+                                appointmentHrObj['startObj'] = new Date(stDateArry[0], stDateArry[1]-1, stDateArry[2], stTimeArry[0], stTimeArry[1]); 
+                                var endTimeArry = self.convertMinsNumToTime(self.convertToMinutes(timingArry[d]['end'])).split(":");
+                                appointmentHrObj['endObj'] = new Date(stDateArry[0], stDateArry[1]-1, stDateArry[2], endTimeArry[0], endTimeArry[1]); 
+                                
                                 var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
                                 var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
                                 var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
@@ -383,12 +414,17 @@ function Appointment(){
                         typeValue:appointmentObj['typeValue'],
                         borderColor:eventColorObj.borderColor,
                         color:"#333",
-                        title:"0/"+appointmentObj['capacity'],
                         backgroundColor:eventColorObj.backgroundColor,
                         studentList:[],
                         parentList:[],
-                        occupied:0,
+                        occupied:1,
                         capacity:appointmentObj['capacity']
+                    }
+
+                    if(appointmentObj['capacity'] == undefined){
+                        eventObj["title"] = "1/NA";
+                    }else{
+                        eventObj["title"] = "1/"+appointmentObj['capacity'];
                     }
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar('removeEvents');
@@ -499,10 +535,10 @@ function Appointment(){
         return {firstDay:firstDay, lastDay:lastDay};
     }
 
-    this.confirmPopup = function (slotStart, slotEnd, message) {
+    this.confirmPopup = function (event, message) {
         var self = this;
-        slotStart = moment(slotStart).format('DD-MM-YYYY hh:mm A');
-        slotEnd = moment(slotEnd).format('DD-MM-YYYY hh:mm A');
+        slotStart = moment(event.start).format('DD-MM-YYYY hh:mm A');
+        slotEnd = moment(event.end).format('DD-MM-YYYY hh:mm A');
         var msg = "<p>Start: "+slotStart+"</p>"+
                   "<p>End: "+slotEnd+"</p>"+
                   "<p>"+message+"</p>";
@@ -514,11 +550,15 @@ function Appointment(){
             modal: true,
             buttons: {
                 Yes: function () {
-                    newDate = moment(slotStart).format("YYYY-MM-DD");
-                    startTime = self.convertToMinutes(moment(slotStart).format("HH:mm A"));
-                    endTime = self.convertToMinutes(moment(slotEnd).format("HH:mm A"));
+                    var newDate = moment(event.start).format("YYYY-MM-DD");
+                    var startTime = self.convertToMinutes(moment(event.start).format("HH:mm A"));
+                    var endTime = self.convertToMinutes(moment(event.end).format("HH:mm A"));
                     wjQuery(this).dialog("close");
-                    window.selectedSlot = {date:newDate, start:startTime, end:endTime};
+                    var isException = false;
+                    if(event.capacity === event.occupied){
+                        isException = true;
+                    }
+                    window.selectedSlot = {date:newDate, start:startTime, end:endTime, isException:isException};
                     window.close();
                 },
                 No: function () {

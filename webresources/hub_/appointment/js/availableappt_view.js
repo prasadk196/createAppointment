@@ -99,8 +99,8 @@ var appointmentHours = [
     "hub_capacity": 2,
     "hub_starttime@OData.Community.Display.V1.FormattedValue": "10:00 AM",
     "hub_starttime": 600,
-    "hub_days@OData.Community.Display.V1.FormattedValue": "Monday",
-    "hub_days": 1,
+    "hub_days@OData.Community.Display.V1.FormattedValue": "Friday",
+    "hub_days": 5,
     "hub_endtime@OData.Community.Display.V1.FormattedValue": "12:00 PM",
     "hub_endtime": 660,
     "hub_timingsid": "b250a172-669f-e711-80f9-c4346badc680",
@@ -198,10 +198,10 @@ var appointment = [
     "_hub_staff_value": "5886bcbd-ab77-e711-80f3-c4346bad526c",
     "statecode@OData.Community.Display.V1.FormattedValue": "Scheduled",
     "statecode": 3,
-    "hub_endtime@OData.Community.Display.V1.FormattedValue": "9:00 AM",
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "11:00 AM",
     "hub_endtime": 540,
-    "hub_end_date@OData.Community.Display.V1.FormattedValue": "10/03/2017",
-    "hub_end_date": "2017-10-03",
+    "hub_end_date@OData.Community.Display.V1.FormattedValue": "10/06/2017",
+    "hub_end_date": "2017-10-06",
     "_regardingobjectid_value@OData.Community.Display.V1.FormattedValue": "Diana Ken",
     "_regardingobjectid_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "regardingobjectid_account_appointment",
     "_regardingobjectid_value@Microsoft.Dynamics.CRM.lookuplogicalname": "account",
@@ -210,8 +210,8 @@ var appointment = [
     "_hub_student_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_student_Appointment",
     "_hub_student_value@Microsoft.Dynamics.CRM.lookuplogicalname": "contact",
     "_hub_student_value": "a0b3ae12-e68e-e711-80f7-c4346bacfbbc",
-    "hub_start_date@OData.Community.Display.V1.FormattedValue": "10/03/2017",
-    "hub_start_date": "2017-10-03",
+    "hub_start_date@OData.Community.Display.V1.FormattedValue": "10/06/2017",
+    "hub_start_date": "2017-10-06",
     "hub_fulldayappointment@OData.Community.Display.V1.FormattedValue": "No",
     "hub_fulldayappointment": false,
     "hub_type@OData.Community.Display.V1.FormattedValue": "Welcome Conference",
@@ -222,7 +222,7 @@ var appointment = [
     "_hub_location_value": "46ecf508-e26d-e711-80f2-c4346bacfbbc",
     "hub_appointmentstatus@OData.Community.Display.V1.FormattedValue": "Schedule",
     "hub_appointmentstatus": 0,
-    "hub_starttime@OData.Community.Display.V1.FormattedValue": "8:00 AM",
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "10:30 AM",
     "hub_starttime": 480,
     "instancetypecode@OData.Community.Display.V1.FormattedValue": "Not Recurring",
     "instancetypecode": 0,
@@ -370,7 +370,6 @@ var appointment = [
 ];
 
 var businessClosure = [
-  
     {
     "@odata.etag": "W/\"3726985\"",
     "hub_reason": "Ad-hoc",
