@@ -171,7 +171,7 @@ function Appointment(){
                 if(new Date().getTime() < calEvent.start.getTime()){
                     self.confirmPopup(calEvent.start,calEvent.end,"Do you wish to create an Appointment?");
                 }else{
-                    self.prompt("Not allowed to create an Appointment");
+                    // self.prompt("Not allowed to create an Appointment");
                 }
             },
             eventRender: function(event, element, view) {
@@ -329,14 +329,20 @@ function Appointment(){
                                         allDay : false,
                                         type:appointmentHrObj['type'],
                                         typeValue:appointmentHrObj['typeValue'],
-                                        borderColor:eventColorObj.borderColor,
                                         color:"#333",
                                         title:"0/"+appointmentHrObj['capacity'],
-                                        backgroundColor:eventColorObj.backgroundColor,
                                         studentList:[],
                                         parentList:[],
                                         occupied:0,
                                         capacity:appointmentHrObj['capacity']
+                                    }
+
+                                    if(new Date().getTime() < appointmentHrObj['startObj'].getTime()){
+                                        eventObj["backgroundColor"] = eventColorObj.backgroundColor;
+                                        eventObj["borderColor"] = eventColorObj.borderColor;
+                                    }else{
+                                        eventObj["backgroundColor"] = "#ddd";
+                                        eventObj["borderColor"] = "#ddd";
                                     }
                                     self.eventList.push(eventObj);
                                     self.appointment.fullCalendar('removeEvents');

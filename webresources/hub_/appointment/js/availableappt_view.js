@@ -438,11 +438,6 @@ function Data(){
     return businessClosure;
   }
 
-  // this.getSlotDeatil = function(selectedSlot){
-  //   // Cal to backend function
-  // }
-
-
 }
 
 
