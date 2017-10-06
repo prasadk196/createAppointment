@@ -45,3 +45,7 @@ body {
 .fc-event{
 	overflow: hidden;
 }
+
+.fc-agenda-allday{
+	display: none;
+}

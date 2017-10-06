@@ -91,8 +91,7 @@ function Appointment(){
         var endObj = new Date(endDateArry[0],endDateArry[1],endDateArry[2],endTimeArry[0],endTimeArry[1]); 
         return {startObj:startObj, endObj:endObj};        
     }
-
-
+    
     this.formatObjects = function(args, label){
         args = args == null ? [] : args; 
         var self = this;
@@ -182,7 +181,7 @@ function Appointment(){
             allDaySlot:true,
             droppable: false,
             handleWindowResize: true,
-            height: window.innerHeight - 65,
+            height: window.innerHeight - 42,
             slotMinutes: eventDuration,
             selectable: true,
             slotEventOverlap: true,
@@ -546,7 +545,7 @@ function Appointment(){
                     var endTime = self.convertToMinutes(moment(event.end).format("HH:mm A"));
                     wjQuery(this).dialog("close");
                     var isException = false;
-                    if(fromEvent == true && event.capacity === event.occupied){
+                    if(!fromEvent || event.capacity === event.occupied){
                         isException = true;
                     }
                     window.selectedSlot = {date:newDate, start:startTime, end:endTime, isException:isException};
