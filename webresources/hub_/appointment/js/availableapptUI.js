@@ -184,22 +184,15 @@ function Appointment(){
             handleWindowResize: true,
             height: window.innerHeight - 65,
             slotMinutes: eventDuration,
-            selectable: false,
+            selectable: true,
             slotEventOverlap: true,
             selectHelper: false,
-            // select: function (start, end, allDay, event, resourceId) {
-            //     console.log(start, end, allDay, event, resourceId);
-            //     // setTimeout(function(){
-            //     //     window.close();
-            //     // }, 500);
-            // },
+            select: function (start, end, allDay, event, resourceId) {
+                var calEvent = {start:start, end:end};
+                self.confirmPopup(calEvent,"Selected slot ", false);
+            },
             eventClick: function(calEvent, jsEvent, view) {
-                // console.log(calEvent, jsEvent, view);
-                if(new Date().getTime() < calEvent.start.getTime()){
-                    self.confirmPopup(calEvent,"Do you wish to create an Appointment?");
-                }else{
-                    // self.prompt("Not allowed to create an Appointment");
-                }
+                self.confirmPopup(calEvent,"Selected slot ", true);
             },
             eventRender: function(event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
@@ -256,7 +249,7 @@ function Appointment(){
     this.prev = function () {
         var self = this;
         var currentCalendarDate = this.appointment.fullCalendar('getDate');
-        if(currentCalendarDate > new Date()){
+        // if(currentCalendarDate > new Date()){
             self.clearEvents();
             this.appointment.fullCalendar('prev');
             wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
@@ -273,9 +266,9 @@ function Appointment(){
             }
             currentCalendarDate = moment(currentCalendarDate).format("YYYY-MM-DD");
             this.refreshCalendarEvent(true);
-        }else{
-            wjQuery(".loading").hide();
-        }
+        // }else{
+        //     wjQuery(".loading").hide();
+        // }
     }
 
     this.dateFromCalendar = function (date, locationId) {
@@ -344,7 +337,6 @@ function Appointment(){
                                 appointmentHrObj['startObj'] = new Date(stDateArry[0], stDateArry[1]-1, stDateArry[2], stTimeArry[0], stTimeArry[1]); 
                                 var endTimeArry = self.convertMinsNumToTime(self.convertToMinutes(timingArry[d]['end'])).split(":");
                                 appointmentHrObj['endObj'] = new Date(stDateArry[0], stDateArry[1]-1, stDateArry[2], endTimeArry[0], endTimeArry[1]); 
-                                
                                 var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
                                 var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj'];
                                 var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
@@ -368,13 +360,13 @@ function Appointment(){
                                         capacity:appointmentHrObj['capacity']
                                     }
 
-                                    if(new Date().getTime() < appointmentHrObj['startObj'].getTime()){
+                                    // if(new Date().getTime() < appointmentHrObj['startObj'].getTime()){
                                         eventObj["backgroundColor"] = eventColorObj.backgroundColor;
                                         eventObj["borderColor"] = eventColorObj.borderColor;
-                                    }else{
-                                        eventObj["backgroundColor"] = "#ddd";
-                                        eventObj["borderColor"] = "#ddd";
-                                    }
+                                    // }else{
+                                    //     eventObj["backgroundColor"] = "#ddd";
+                                    //     eventObj["borderColor"] = "#ddd";
+                                    // }
                                     self.eventList.push(eventObj);
                                     self.appointment.fullCalendar('removeEvents');
                                     self.appointment.fullCalendar('removeEventSource');
@@ -535,18 +527,17 @@ function Appointment(){
         return {firstDay:firstDay, lastDay:lastDay};
     }
 
-    this.confirmPopup = function (event, message) {
+    this.confirmPopup = function (event, message, fromEvent) {
         var self = this;
-        slotStart = moment(event.start).format('DD-MM-YYYY hh:mm A');
-        slotEnd = moment(event.end).format('DD-MM-YYYY hh:mm A');
-        var msg = "<p>Start: "+slotStart+"</p>"+
-                  "<p>End: "+slotEnd+"</p>"+
-                  "<p>"+message+"</p>";
+        var dateString = moment(event.start).format('LL'); 
+        var slotStart = moment(event.start).format('hh:mm A');
+        var slotEnd = moment(event.end).format('hh:mm A');
+        var msg = "<p>"+message+" "+dateString+"("+slotStart+" to "+slotEnd+")"+"</p>"; 
         wjQuery("#dialog > .dialog-msg").html(msg);
         wjQuery("#dialog").dialog({
             resizable: false,
             height: "auto",
-            width: 350,
+            width: 400,
             modal: true,
             buttons: {
                 Yes: function () {
@@ -555,7 +546,7 @@ function Appointment(){
                     var endTime = self.convertToMinutes(moment(event.end).format("HH:mm A"));
                     wjQuery(this).dialog("close");
                     var isException = false;
-                    if(event.capacity === event.occupied){
+                    if(fromEvent == true && event.capacity === event.occupied){
                         isException = true;
                     }
                     window.selectedSlot = {date:newDate, start:startTime, end:endTime, isException:isException};

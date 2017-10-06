@@ -41,3 +41,7 @@ body {
 	padding: 7px 0px;
 	height: calc(100% - 16px);
 }
+
+.fc-event{
+	overflow: hidden;
+}
