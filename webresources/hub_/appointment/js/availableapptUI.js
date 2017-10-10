@@ -125,8 +125,8 @@ function Appointment(){
                 if(appointmentHour['hub_effectiveenddate'] != undefined){
                     endDateArry = appointmentHour['hub_effectiveenddate'].split("-");
                 }
+
                 var endTimeArry = self.convertMinsNumToTime(self.convertToMinutes(appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue'])).split(":");
-                
                 var startObj = new Date(stDateArry[0],stDateArry[1]-1,stDateArry[2],stTimeArry[0],stTimeArry[1]); 
                 var endObj = new Date(endDateArry[0],endDateArry[1]-1,endDateArry[2],endTimeArry[0],endTimeArry[1]); 
                 
@@ -197,13 +197,13 @@ function Appointment(){
             },
             eventRender: function(event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
-                    wjQuery('.fc-col' + event.start.getUTCDay()).not('.fc-widget-header').css('background-color', '#ddd');
+                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('border-color', '#ddd');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
                 }
                 else{
-                    wjQuery('.fc-col' + event.start.getUTCDay()).not('.fc-widget-header').css('background-color', '#fff');
+                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#fff');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'); 
                 }
             },
@@ -218,12 +218,12 @@ function Appointment(){
             this.calendarOptions.date = args.getDate();
         }
         self.appointment = wjQuery('#appointment').fullCalendar(this.calendarOptions);
-        var today = new Date().getUTCDay();
-        var currnetDay = new Date(moment(new Date()).format('MM/DD/YYYY'));
-        var thDate = new Date(wjQuery(".headerDate").text());
-        if(currnetDay.getMonth() == thDate.getMonth() && currnetDay.getUTCDay() == thDate.getUTCDay()){
-            // wjQuery("th.fc-col"+today).css("backgroundColor","#cecece");
-        }
+        // var today = new Date().getDay();
+        // var currnetDay = new Date(moment(new Date()).format('MM/DD/YYYY'));
+        // var thDate = new Date(wjQuery(".headerDate").text());
+        // if(currnetDay.getMonth() == thDate.getMonth() && currnetDay.getDay() == thDate.getDay()){
+        //     // wjQuery("th.fc-col"+today).css("backgroundColor","#cecece");
+        // }
     }
 
     this.next = function () {
@@ -521,7 +521,7 @@ function Appointment(){
 
     this.getCurrentWeekInfo = function(newDate){
         var curr = new Date(newDate);
-        var first = curr.getDate() - curr.getUTCDay();
+        var first = curr.getDate() - curr.getDay();
         var last = first + 6;
         var firstDay = new Date(curr.setDate(first));
         var lastDay = new Date(curr.setDate(last));
@@ -578,40 +578,55 @@ function Appointment(){
     this.checkDateRage = function(start, end, day){
         var self = this;
         var currentView = self.appointment.fullCalendar('getView');
-        start = new Date(start);
         var returnDate = false;
-        if(end == undefined){
-           end = new Date(moment(currentView.end).format("YYYY-MM-DD"));
-        }else{
-            end = new Date(end);
-        }
-        currentView.start = new Date(moment(currentView.start).format("YYYY-MM-DD"));
-        currentView.end = new Date(moment(currentView.end).format("YYYY-MM-DD"));
-        var curr = currentView.start; 
-        var first = curr.getDate() - curr.getUTCDay()
+        start = new Date(start);
+        start = new Date(start).setHours(0);
+        start = new Date(new Date(start).setMinutes(0));
+        start = new Date(new Date(start).setSeconds(0));
+
+        currentView.start = new Date(currentView.start).setHours(0);
+        currentView.start = new Date(new Date(currentView.start).setMinutes(0));
+        currentView.start = new Date(new Date(currentView.start).setSeconds(0));
+        
+        currentView.end = new Date(currentView.end).setHours(0);
+        currentView.end = new Date(new Date(currentView.end).setMinutes(0));
+        currentView.end = new Date(new Date(currentView.end).setSeconds(0));
+        var curr = currentView.start;
+        var first = curr.getDate() - curr.getDay();
         var firstday = (new Date(curr.setDate(first+1))).toString();
         for(var i = 0;i<7;i++){
             var next = first + i;
             var nextday = new Date(curr.setDate(next));
-            if(nextday.getUTCDay() === day){
+            if(nextday.getDay() === day){
                 returnDate = nextday;
                 break;
             }
         }
-        if(start.getTime() <= returnDate.getTime() && returnDate.getTime() <= end.getTime()){
-            return returnDate;
+
+        if(end == undefined){
+            if(returnDate.getTime() >= start.getTime()){
+                returnDate = returnDate;
+            }else{
+                returnDate = false;
+            }
         }else{
-            return false;
+            end = new Date(end);
+            if(returnDate.getTime() >= start.getTime() && returnDate.getTime() <= end.getTime()){
+                returnDate = returnDate;
+            }else{
+                returnDate = false;
+            }
         }
+        return returnDate;
     }
 
-    this.getWeek = function(fromDate){
-        var sunday = new Date(fromDate.setDate(fromDate.getDate()-fromDate.getUTCDay()));
-        var result = [new Date(sunday)];
-        while (sunday.setDate(sunday.getDate()+1) && sunday.getUTCDay()!==0) {
-          result.push(new Date(sunday));
-        }
-        return result;
-    }
+    // this.getWeek = function(fromDate){
+    //     var sunday = new Date(fromDate.setDate(fromDate.getDate()-fromDate.getDay()));
+    //     var result = [new Date(sunday)];
+    //     while (sunday.setDate(sunday.getDate()+1) && sunday.getDay()!==0) {
+    //       result.push(new Date(sunday));
+    //     }
+    //     return result;
+    // }
 }
 
