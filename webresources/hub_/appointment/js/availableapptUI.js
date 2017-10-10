@@ -32,7 +32,7 @@ setTimeout(function () {
                 changeMonth: true,
                 changeYear: true,
                 showOn: 'button',
-                minDate: '0', 
+                // minDate: '0', 
                 onSelect: function (date) {
                     wjQuery(".loading").show();
                     appointment.dateFromCalendar(date);
@@ -231,13 +231,13 @@ function Appointment(){
         self.clearEvents();
         this.appointment.fullCalendar('next');
         var currentCalendarDate = this.appointment.fullCalendar('getDate');
-        wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
+        var currentView = this.appointment.fullCalendar('getView');
+        wjQuery('.headerDate').text(moment(currentView.start).format('MM/DD/YYYY'));
         if (moment(currentCalendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
             wjQuery('.headerDate').addClass('today');
         }else {
             wjQuery('.headerDate').removeClass('today');
         }
-        var currentView = this.appointment.fullCalendar('getView');
         if (currentView.name == 'resourceDay') {
             var dayOfWeek = moment(currentCalendarDate).format('dddd');
             var dayofMonth = moment(currentCalendarDate).format('M/D');
@@ -250,16 +250,16 @@ function Appointment(){
     this.prev = function () {
         var self = this;
         var currentCalendarDate = this.appointment.fullCalendar('getDate');
+        var currentView = this.appointment.fullCalendar('getView');
         // if(currentCalendarDate > new Date()){
             self.clearEvents();
             this.appointment.fullCalendar('prev');
-            wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
+            wjQuery('.headerDate').text(moment(currentView.start).format('MM/DD/YYYY'));
             if (moment(currentCalendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
                 wjQuery('.headerDate').addClass('today');
             }else {
                 wjQuery('.headerDate').removeClass('today');
             }
-            var currentView = this.appointment.fullCalendar('getView');
             if (currentView.name == 'resourceDay') {
                 var dayOfWeek = moment(currentCalendarDate).format('dddd');
                 var dayofMonth = moment(currentCalendarDate).format('M/D');
@@ -397,32 +397,32 @@ function Appointment(){
                     eventPopulated[0].occupied += 1; 
                     eventPopulated[0].title = eventPopulated[0].occupied+"/"+ eventPopulated[0].capacity;
                 }else{
-                    var eventObj = {};
-                    eventObj = {
-                        id:eventId,
-                        start:appointmentObj['startObj'],
-                        end:appointmentObj['endObj'],
-                        allDay : false,
-                        type:appointmentObj['type'],
-                        typeValue:appointmentObj['typeValue'],
-                        borderColor:eventColorObj.borderColor,
-                        color:"#333",
-                        backgroundColor:eventColorObj.backgroundColor,
-                        studentList:[],
-                        parentList:[],
-                        occupied:1,
-                        capacity:appointmentObj['capacity']
-                    }
+                    // var eventObj = {};
+                    // eventObj = {
+                    //     id:eventId,
+                    //     start:appointmentObj['startObj'],
+                    //     end:appointmentObj['endObj'],
+                    //     allDay : false,
+                    //     type:appointmentObj['type'],
+                    //     typeValue:appointmentObj['typeValue'],
+                    //     borderColor:eventColorObj.borderColor,
+                    //     color:"#333",
+                    //     backgroundColor:eventColorObj.backgroundColor,
+                    //     studentList:[],
+                    //     parentList:[],
+                    //     occupied:1,
+                    //     capacity:appointmentObj['capacity']
+                    // }
 
-                    if(appointmentObj['capacity'] == undefined){
-                        eventObj["title"] = "1/NA";
-                    }else{
-                        eventObj["title"] = "1/"+appointmentObj['capacity'];
-                    }
-                    self.eventList.push(eventObj);
-                    self.appointment.fullCalendar('removeEvents');
-                    self.appointment.fullCalendar('removeEventSource');
-                    self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+                    // if(appointmentObj['capacity'] == undefined){
+                    //     eventObj["title"] = "1/NA";
+                    // }else{
+                    //     eventObj["title"] = "1/"+appointmentObj['capacity'];
+                    // }
+                    // self.eventList.push(eventObj);
+                    // self.appointment.fullCalendar('removeEvents');
+                    // self.appointment.fullCalendar('removeEventSource');
+                    // self.appointment.fullCalendar('addEventSource', { events: self.eventList });
                 }
                 self.appointment.fullCalendar('refetchEvents');
             });
@@ -587,7 +587,7 @@ function Appointment(){
         currentView.start = new Date(currentView.start).setHours(0);
         currentView.start = new Date(new Date(currentView.start).setMinutes(0));
         currentView.start = new Date(new Date(currentView.start).setSeconds(0));
-        
+
         currentView.end = new Date(currentView.end).setHours(0);
         currentView.end = new Date(new Date(currentView.end).setMinutes(0));
         currentView.end = new Date(new Date(currentView.end).setSeconds(0));
@@ -628,5 +628,34 @@ function Appointment(){
     //     }
     //     return result;
     // }
+
+
+    this.getDayValue = function (date) {
+        if (date != undefined) {
+            switch (moment(date).format('dddd').toLowerCase()) {
+                case 'monday':
+                    return 1;
+                    break;
+                case 'tuesday':
+                    return 2;
+                    break;
+                case 'wednesday':
+                    return 3;
+                    break;
+                case 'thursday':
+                    return 4;
+                    break;
+                case 'friday':
+                    return 5;
+                    break;
+                case 'saturday':
+                    return 6;
+                    break;
+                case 'sunday':
+                    return 7;
+                    break;
+            }
+        }
+    }
 }
 
