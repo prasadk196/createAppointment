@@ -188,20 +188,22 @@ function Appointment(){
             selectHelper: false,
             select: function (start, end, allDay, event, resourceId) {
                 var calEvent = {start:start, end:end};
-                self.confirmPopup(calEvent,"Selected slot ", false);
+                if(!self.checkBusinessClosure(start)){
+                    self.confirmPopup(calEvent,"Selected slot ", false);
+                }
             },
             eventClick: function(calEvent, jsEvent, view) {
                 self.confirmPopup(calEvent,"Selected slot ", true);
             },
             eventRender: function(event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
-                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
+                    wjQuery('.fc-col' + event.start.getUTCDay()).not('.fc-widget-header').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('border-color', '#ddd');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
                 }
                 else{
-                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#fff');
+                    wjQuery('.fc-col' + event.start.getUTCDay()).not('.fc-widget-header').css('background-color', '#fff');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'); 
                 }
             },
@@ -216,10 +218,10 @@ function Appointment(){
             this.calendarOptions.date = args.getDate();
         }
         self.appointment = wjQuery('#appointment').fullCalendar(this.calendarOptions);
-        var today = new Date().getDay();
+        var today = new Date().getUTCDay();
         var currnetDay = new Date(moment(new Date()).format('MM/DD/YYYY'));
         var thDate = new Date(wjQuery(".headerDate").text());
-        if(currnetDay.getMonth() == thDate.getMonth() && currnetDay.getDay() == thDate.getDay()){
+        if(currnetDay.getMonth() == thDate.getMonth() && currnetDay.getUTCDay() == thDate.getUTCDay()){
             // wjQuery("th.fc-col"+today).css("backgroundColor","#cecece");
         }
     }
@@ -519,7 +521,7 @@ function Appointment(){
 
     this.getCurrentWeekInfo = function(newDate){
         var curr = new Date(newDate);
-        var first = curr.getDate() - curr.getDay();
+        var first = curr.getDate() - curr.getUTCDay();
         var last = first + 6;
         var firstDay = new Date(curr.setDate(first));
         var lastDay = new Date(curr.setDate(last));
@@ -586,12 +588,12 @@ function Appointment(){
         currentView.start = new Date(moment(currentView.start).format("YYYY-MM-DD"));
         currentView.end = new Date(moment(currentView.end).format("YYYY-MM-DD"));
         var curr = currentView.start; 
-        var first = curr.getDate() - curr.getDay()
+        var first = curr.getDate() - curr.getUTCDay()
         var firstday = (new Date(curr.setDate(first+1))).toString();
         for(var i = 0;i<7;i++){
             var next = first + i;
             var nextday = new Date(curr.setDate(next));
-            if(nextday.getDay() === day){
+            if(nextday.getUTCDay() === day){
                 returnDate = nextday;
                 break;
             }
@@ -604,9 +606,9 @@ function Appointment(){
     }
 
     this.getWeek = function(fromDate){
-        var sunday = new Date(fromDate.setDate(fromDate.getDate()-fromDate.getDay()));
+        var sunday = new Date(fromDate.setDate(fromDate.getDate()-fromDate.getUTCDay()));
         var result = [new Date(sunday)];
-        while (sunday.setDate(sunday.getDate()+1) && sunday.getDay()!==0) {
+        while (sunday.setDate(sunday.getDate()+1) && sunday.getUTCDay()!==0) {
           result.push(new Date(sunday));
         }
         return result;
